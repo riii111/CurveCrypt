@@ -3,6 +3,9 @@
 #include <openssl/evp.h>
 #include <openssl/kdf.h>
 #include <openssl/hmac.h>
+#include <openssl/ec.h>
+#include <openssl/bn.h>
+#include <openssl/ecdh.h>
 #include <cstring>
 
 namespace curvecrypt {

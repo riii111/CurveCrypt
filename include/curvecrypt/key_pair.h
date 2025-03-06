@@ -27,6 +27,13 @@ public:
                                                     CurveType curve = CurveType::X25519);
     
     /**
+     * Factory method to create a key pair from components.
+     */
+    static std::unique_ptr<ECDHKeyPair> create(std::vector<uint8_t> privateKey,
+                                           std::vector<uint8_t> publicKey,
+                                           CurveType curve);
+    
+    /**
      * Destructor - securely erases private key material.
      */
     ~ECDHKeyPair();

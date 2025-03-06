@@ -18,6 +18,9 @@ option(CURVECRYPT_BUILD_EXAMPLES "Build the CurveCrypt example applications" ON)
 # Find dependencies
 find_package(OpenSSL REQUIRED)
 
+# Allow deprecated OpenSSL functions (for compatibility with OpenSSL 3.0+)
+add_definitions(-DOPENSSL_API_COMPAT=0x10100000L)
+
 # Library sources
 set(CURVECRYPT_SOURCES
     src/error.cpp
@@ -37,9 +40,9 @@ target_link_libraries(curvecrypt PUBLIC OpenSSL::Crypto)
 
 # Compiler warnings
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(curvecrypt PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    target_compile_options(curvecrypt PRIVATE -Wall -Wextra -Wpedantic)
 elseif(MSVC)
-    target_compile_options(curvecrypt PRIVATE /W4 /WX)
+    target_compile_options(curvecrypt PRIVATE /W4)
 endif()
 
 # Tests

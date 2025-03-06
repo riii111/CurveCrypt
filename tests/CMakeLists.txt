@@ -23,5 +23,4 @@ target_link_libraries(curvecrypt_tests PRIVATE curvecrypt Catch2::Catch2)
 
 # Add tests to CTest
 include(CTest)
-include(Catch)
-catch_discover_tests(curvecrypt_tests)
+add_test(NAME curvecrypt_tests COMMAND curvecrypt_tests)

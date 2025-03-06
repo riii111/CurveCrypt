@@ -54,15 +54,17 @@ TEST_CASE("Key Pair Move Operations", "[key_pair]") {
     auto pubKey = keyPair1->getPublicKey();
     auto privKey = keyPair1->getPrivateKey();
     
-    // Test move constructor
-    auto keyPair2 = std::move(keyPair1);
+    // Test move constructor with raw objects (not unique_ptr)
+    ECDHKeyPair keyPair2(std::move(*keyPair1));
     REQUIRE(keyPair2.getPublicKey() == pubKey);
     REQUIRE(keyPair2.getPrivateKey() == privKey);
     
-    // Test move assignment
-    auto keyPair3 = ECDHKeyPair::generate(CurveType::X25519);
-    REQUIRE(keyPair3 != nullptr);
+    // Create a new key pair for testing move assignment
+    auto keyPair3_ptr = ECDHKeyPair::generate(CurveType::X25519);
+    REQUIRE(keyPair3_ptr != nullptr);
     
+    // Move raw object
+    ECDHKeyPair keyPair3(std::move(*keyPair3_ptr));
     keyPair3 = std::move(keyPair2);
     REQUIRE(keyPair3.getPublicKey() == pubKey);
     REQUIRE(keyPair3.getPrivateKey() == privKey);

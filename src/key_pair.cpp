@@ -72,7 +72,7 @@ std::unique_ptr<ECDHKeyPair> generateX25519KeyPair() {
     EVP_PKEY_free(pkey);
     EVP_PKEY_CTX_free(ctx);
     
-    return std::make_unique<ECDHKeyPair>(std::move(privateKey), std::move(publicKey), CurveType::X25519);
+    return ECDHKeyPair::create(std::move(privateKey), std::move(publicKey), CurveType::X25519);
 }
 
 // Create X25519 key pair from private key
@@ -98,7 +98,7 @@ std::unique_ptr<ECDHKeyPair> createX25519KeyPairFromPrivate(const std::vector<ui
     
     EVP_PKEY_free(pkey);
     
-    return std::make_unique<ECDHKeyPair>(
+    return ECDHKeyPair::create(
         std::vector<uint8_t>(privateKey), std::move(publicKey), CurveType::X25519);
 }
 
@@ -194,7 +194,7 @@ std::unique_ptr<ECDHKeyPair> generateNistKeyPair(CurveType curve) {
     EVP_PKEY_free(params);
     EVP_PKEY_CTX_free(paramCtx);
     
-    return std::make_unique<ECDHKeyPair>(
+    return ECDHKeyPair::create(
         std::move(privateKey), std::move(publicKey), curve);
 }
 
@@ -265,7 +265,7 @@ std::unique_ptr<ECDHKeyPair> createNistKeyPairFromPrivate(
     BN_free(privateKeyBN);
     EC_KEY_free(ecKey);
     
-    return std::make_unique<ECDHKeyPair>(
+    return ECDHKeyPair::create(
         std::vector<uint8_t>(privateKey), std::move(publicKey), curve);
 }
 
@@ -280,6 +280,14 @@ ECDHKeyPair::ECDHKeyPair(
     : privateKey_(std::move(privateKey))
     , publicKey_(std::move(publicKey))
     , curveType_(curve) {
+}
+
+std::unique_ptr<ECDHKeyPair> ECDHKeyPair::create(
+    std::vector<uint8_t> privateKey,
+    std::vector<uint8_t> publicKey,
+    CurveType curve) {
+    return std::unique_ptr<ECDHKeyPair>(
+        new ECDHKeyPair(std::move(privateKey), std::move(publicKey), curve));
 }
 
 ECDHKeyPair::~ECDHKeyPair() {

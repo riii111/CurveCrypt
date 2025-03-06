@@ -28,7 +28,16 @@ public:
     /**
      * Derive a symmetric key from the shared secret.
      * 
-     * Context string provides domain separation and salt adds randomness.
+     * This method implements HKDF (RFC 5869) for deriving cryptographic keys.
+     * 
+     * @param sharedSecret The shared secret from ECDH exchange.
+     * @param keyLength The desired length of the derived key in bytes.
+     * @param context A context string for domain separation. Using different contexts
+     *                produces different keys from the same shared secret, allowing
+     *                multiple independent keys to be derived.
+     * @param salt Optional salt value for additional randomness and security.
+     *             Not required for security but can provide hedging against bad RNGs.
+     * @return Result containing the derived key or an error.
      */
     Result<std::vector<uint8_t>> deriveSymmetricKey(
         const std::vector<uint8_t>& sharedSecret,

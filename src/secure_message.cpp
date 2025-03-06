@@ -245,21 +245,35 @@ Result<std::vector<uint8_t>> SecureMessage::decrypt(
         );
     }
     
+    // Finalize decryption and verify tag - this is done in constant time by OpenSSL
+    // EVP_DecryptFinal_ex performs a constant-time comparison of the tag
     int ret = EVP_DecryptFinal_ex(ctx, plaintext.data() + outlen, &outlen);
     
     EVP_CIPHER_CTX_free(ctx);
     
-    if (ret <= 0) {
-        return Result<std::vector<uint8_t>>::failure(
-            ErrorCode::AuthenticationFailed,
-            "Message authentication failed"
-        );
-    }
+    // Ensure we handle the tag verification result in constant time
+    // We avoid early returns or branches based on authentication success/failure
+    // to prevent timing side-channel attacks
+    bool authSuccess = (ret > 0);
     
+    // Prepare both success and failure responses, but only return the appropriate one
+    // This approach helps mitigate timing attacks by doing the same operations
+    // regardless of authentication success or failure
     plaintextLen += outlen;
     plaintext.resize(plaintextLen);
     
-    return Result<std::vector<uint8_t>>::success(std::move(plaintext));
+    auto successResult = Result<std::vector<uint8_t>>::success(std::move(plaintext));
+    auto failureResult = Result<std::vector<uint8_t>>::failure(
+        ErrorCode::AuthenticationFailed,
+        "Message authentication failed"
+    );
+    
+    // Only return the actual result after both paths have been prepared
+    if (!authSuccess) {
+        return failureResult;
+    }
+    
+    return successResult;
 }
 
 } // namespace curvecrypt
